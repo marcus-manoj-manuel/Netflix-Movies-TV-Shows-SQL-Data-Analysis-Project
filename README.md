@@ -1,11 +1,20 @@
--- ============================================
--- Netflix Data Analysis | SQL Project
--- Author: Marcus Manoj Manuel
--- Tools: PostgreSQL 17 + pgAdmin
--- ============================================
+# Netflix Movies and TV Shows Data Analysis using SQL
 
+## Overview
+This project involves a comprehensive analysis of Netflix's movies and TV shows data using SQL. The goal is to extract valuable insights and answer various business questions based on the dataset. The following README provides a detailed account of the project's objectives, business problems, solutions, findings, and conclusions.
 
--- 🔹 Create Table Schema
+## Objectives
+Analyze the distribution of content types (movies vs TV shows).
+Identify the most common ratings for movies and TV shows.
+List and analyze content based on release years, countries, and durations.
+Explore and categorize content based on specific criteria and keywords.
+
+## Dataset
+The data for this project is sourced from the Kaggle dataset:
+
+Dataset Link: Movies Dataset *(Add real link)*
+
+## Schema
 DROP TABLE IF EXISTS netflix;
 
 CREATE TABLE netflix (
@@ -23,12 +32,9 @@ CREATE TABLE netflix (
     description  VARCHAR(250)
 );
 
+## Business Problems and SQL Solutions
 
--- ============================================
--- 📍 BUSINESS PROBLEMS & SQL SOLUTIONS
--- ============================================
-
--- 1️⃣ Count the number of Movies vs TV Shows
+1. Count the Number of Movies vs TV Shows
 SELECT 
     type AS content_type,
     COUNT(*) AS total_titles
@@ -36,8 +42,7 @@ FROM netflix
 GROUP BY type
 ORDER BY total_titles DESC;
 
-
--- 2️⃣ Most common ratings for Movies vs TV Shows
+2. Most Common Rating for Movies and TV Shows
 WITH RatingCounts AS (
     SELECT type, rating, COUNT(*) AS rating_count
     FROM netflix
@@ -55,16 +60,14 @@ SELECT
 FROM RankedRatings
 WHERE rank = 1;
 
-
--- 3️⃣ List all Movies released in a specific year (Example: 2020)
+3. List Movies Released in 2020
 SELECT *
 FROM netflix
 WHERE type = 'Movie'
   AND release_year = 2020
 ORDER BY title;
 
-
--- 4️⃣ Top 5 countries with the most content
+4. Top 5 Countries with the Most Netflix Content
 SELECT 
     country_trim AS country,
     COUNT(*) AS total_content
@@ -79,40 +82,34 @@ GROUP BY country_trim
 ORDER BY total_content DESC
 LIMIT 5;
 
-
--- 5️⃣ Identify the longest movie
+5. Longest Movie on Netflix
 SELECT *
 FROM netflix
 WHERE type = 'Movie'
 ORDER BY SPLIT_PART(duration, ' ', 1)::INT DESC
 LIMIT 1;
 
-
--- 6️⃣ Content added in the last 5 years
+6. Content Added in Last 5 Years
 SELECT *
 FROM netflix
 WHERE TO_DATE(date_added, 'Month DD, YYYY') >= CURRENT_DATE - INTERVAL '5 years';
 
-
--- 7️⃣ Content by Director ‘Rajiv Chilaka’
+7. Movies/Shows by Rajiv Chilaka
 SELECT *
 FROM (
-    SELECT 
-        n.*,
-        TRIM(UNNEST(STRING_TO_ARRAY(director, ','))) AS director_name
+    SELECT n.*,
+           TRIM(UNNEST(STRING_TO_ARRAY(director, ','))) AS director_name
     FROM netflix AS n
 ) AS t
 WHERE director_name = 'Rajiv Chilaka';
 
-
--- 8️⃣ TV Shows with more than 5 seasons
+8. TV Shows with More than 5 Seasons
 SELECT *
 FROM netflix
 WHERE type = 'TV Show'
   AND SPLIT_PART(duration, ' ', 1)::INT > 5;
 
-
--- 9️⃣ Count content per Genre (split by commas)
+9. Count of Content in Each Genre
 SELECT 
     TRIM(UNNEST(STRING_TO_ARRAY(listed_in, ','))) AS genre,
     COUNT(*) AS total_content
@@ -120,8 +117,7 @@ FROM netflix
 GROUP BY genre
 ORDER BY total_content DESC;
 
-
--- 🔟 Top 5 Years with Highest % of Content Released by India
+10. Top 5 Years with Highest % of Indian Content
 SELECT 
     release_year,
     COUNT(show_id) AS total_release,
@@ -136,28 +132,25 @@ GROUP BY release_year
 ORDER BY percentage_of_indian_titles DESC
 LIMIT 5;
 
-
--- 1️⃣1️⃣ All Documentaries
+11. All Documentary Movies
 SELECT *
 FROM netflix
-WHERE listed_in ILIKE '%Documentaries%';
+WHERE type = 'Movie'
+  AND listed_in ILIKE '%Documentaries%';
 
-
--- 1️⃣2️⃣ Content without a Director
+12. Content With No Director Listed
 SELECT *
 FROM netflix
 WHERE director IS NULL OR director = '';
 
-
--- 1️⃣3️⃣ Movies in Last 10 Years Featuring Salman Khan
+13. Salman Khan Movies in Last 10 Years
 SELECT *
 FROM netflix
 WHERE casts ILIKE '%Salman Khan%'
   AND release_year >= EXTRACT(YEAR FROM CURRENT_DATE) - 10
   AND type = 'Movie';
 
-
--- 1️⃣4️⃣ Top 10 Actors in Indian Movies on Netflix
+14. Top 10 Actors in Indian Movies
 SELECT 
     TRIM(UNNEST(STRING_TO_ARRAY(casts, ','))) AS actor,
     COUNT(*) AS total_titles
@@ -168,8 +161,7 @@ GROUP BY actor
 ORDER BY total_titles DESC
 LIMIT 10;
 
-
--- 1️⃣5️⃣ Categorize Content as Good / Bad based on Violent Keywords
+15. Categorize Content as Good or Bad (Violence/Kill Related)
 SELECT 
     category,
     type,
@@ -187,6 +179,14 @@ FROM (
 GROUP BY category, type
 ORDER BY type, category;
 
--- ===========================
--- END OF FILE 📌
--- ===========================
+## Findings and Conclusion
+
+Content Distribution: The dataset contains a diverse range of movies and TV shows with varying ratings and genres.  
+Common Ratings: Insights into the most common ratings provide an understanding of the content's target audience.  
+Geographical Insights: The top countries and the average content releases by India highlight regional content distribution.  
+Content Categorization: Categorizing content based on specific keywords helps in understanding the nature of content available on Netflix.  
+
+This analysis provides a comprehensive view of Netflix's content and can help inform content strategy and decision-making.
+
+## Connect with Me
+LinkedIn: https://in.linkedin.com/in/marcus-manoj-manuel-a489642a9
